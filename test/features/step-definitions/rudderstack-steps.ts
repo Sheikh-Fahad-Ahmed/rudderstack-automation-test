@@ -1,18 +1,20 @@
 import {
   Given,
+  When,
   IWorldOptions,
   Then,
   World,
   setWorldConstructor,
 } from "@cucumber/cucumber";
+import * as chai from "chai";
 import apiHelpers from "../../helpers/apiHelpers.ts";
 
 class CredentialsWorld extends World {
   dataPlaneURL?: string;
   writeKey?: string;
-  constructor(options: IWorldOptions) {
-    super(options);
-  }
+  // constructor(options: IWorldOptions) {
+  //   super(options);
+  // }
 }
 setWorldConstructor(CredentialsWorld);
 
@@ -27,7 +29,7 @@ Given(/^Login to rudderstack web app$/, async function () {
   await $(`span=Log in`).click();
 });
 
-Then(/^Skip two factor authentication$/, async function () {
+When(/^Logged in skip two factor authentication$/, async function () {
   const link = await $(`=I'll do this later`);
   await link.waitForExist({ timeout: 10000 });
   await link.click();
@@ -103,21 +105,31 @@ Then(
     const value = await $(`.sc-ksJhlw.sc-fTkLMS.fxuygx.gHHISb`);
     let valueText: string = await value.getText();
     console.log(`>>> valueText: ${valueText}, value: ${value}`);
+
     if (valueText === destination) {
       await value.click();
+    } else {
+      throw new Error(`Destination: ${destination} is not valid`);
     }
+
     await browser.pause(2000);
     let eventsTabs = await $$(`.ant-tabs-tab-btn`);
-    let eventsTabsLength = await eventsTabs.length;
+    let eventsTabsLength: number = await eventsTabs.length;
+    let flag: boolean = false;
+
     for (let i = 0; i < eventsTabsLength; i++) {
       let tabText = await eventsTabs[i].getText();
       if (tabText === "Events") {
         eventsTabs[i].click();
+        flag = true;
         break;
       }
     }
+
+    if (flag === false) {
+      throw new Error(`Events tab was not clicked`);
+    }
     console.log(`Events tab was clicked`);
-    await browser.pause(3000);
   }
 );
 
@@ -134,4 +146,7 @@ Then(/^Read the events data$/, async function () {
   let deliveredEvents = numbers[0];
   let failedEvents = numbers[1];
   console.log(`>>> delivery: ${deliveredEvents}, failed: ${failedEvents}`);
+
+  chai.expect(parseInt(deliveredEvents)).to.greaterThanOrEqual(0);
+  chai.expect(parseInt(failedEvents)).to.greaterThanOrEqual(0);
 });
