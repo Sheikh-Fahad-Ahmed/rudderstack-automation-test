@@ -38,7 +38,7 @@ on the dashboard.
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/Sheikh-Fahad-Ahmed/rudderstack-e2e-tests.git
+   git clone https://github.com/Sheikh-Fahad-Ahmed/rudderstack-automation-test.git
    cd rudderstack-e2e-tests
    ```
 
