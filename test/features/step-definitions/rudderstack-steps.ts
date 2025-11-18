@@ -14,8 +14,8 @@ class CredentialsWorld extends World {
     super(options);
   }
 }
-
 setWorldConstructor(CredentialsWorld);
+
 Given(/^Login to rudderstack web app$/, async function () {
   // Launch browser and load page
   await browser.url(process.env.RUDDERSTACK_LOGIN_URL);
@@ -27,7 +27,7 @@ Given(/^Login to rudderstack web app$/, async function () {
   await $(`span=Log in`).click();
 });
 
-Then(/^Get and store data plane URL$/, async function (this: CredentialsWorld) {
+Then(/^Skip two factor authentication$/, async function () {
   const link = await $(`=I'll do this later`);
   await link.waitForExist({ timeout: 10000 });
   await link.click();
@@ -38,7 +38,9 @@ Then(/^Get and store data plane URL$/, async function (this: CredentialsWorld) {
   await btn.waitForExist({ timeout: 10000 });
   await btn.waitForDisplayed({ timeout: 10000 });
   await btn.click();
+});
 
+Then(/^Get and store data plane URL$/, async function (this: CredentialsWorld) {
   await browser.pause(3000);
   const popUpBtn = await $(`button[data-action=close]`);
   await popUpBtn.click();
@@ -118,8 +120,6 @@ Then(
     await browser.pause(3000);
   }
 );
-//*[@id="top-layout"]/div[2]/div/div/div/div[2]/div/div/div/div/div/div/div[2]/table/tbody/tr[2]/td[1]/div
-//*[@id="rc-tabs-0-panel-Events"]/div[3]/div[1]/div/div[1]/div/h2
 
 Then(/^Read the events data$/, async function () {
   await browser.pause(2000);
