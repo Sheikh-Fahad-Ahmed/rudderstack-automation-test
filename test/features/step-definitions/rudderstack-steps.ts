@@ -94,4 +94,44 @@ Then(
   }
 );
 
+Then(
+  /^Move to events tab in destination (.*)$/,
+  async function (destination: string) {
+    await $(`span=Destinations`).click();
+    const value = await $(`.sc-ksJhlw.sc-fTkLMS.fxuygx.gHHISb`);
+    let valueText: string = await value.getText();
+    console.log(`>>> valueText: ${valueText}, value: ${value}`);
+    if (valueText === destination) {
+      await value.click();
+    }
+    await browser.pause(2000);
+    let eventsTabs = await $$(`.ant-tabs-tab-btn`);
+    let eventsTabsLength = await eventsTabs.length;
+    for (let i = 0; i < eventsTabsLength; i++) {
+      let tabText = await eventsTabs[i].getText();
+      if (tabText === "Events") {
+        eventsTabs[i].click();
+        break;
+      }
+    }
+    console.log(`Events tab was clicked`);
+    await browser.pause(3000);
+  }
+);
+//*[@id="top-layout"]/div[2]/div/div/div/div[2]/div/div/div/div/div/div/div[2]/table/tbody/tr[2]/td[1]/div
+//*[@id="rc-tabs-0-panel-Events"]/div[3]/div[1]/div/div[1]/div/h2
 
+Then(/^Read the events data$/, async function () {
+  await browser.pause(2000);
+  let events = await $$(`h2.sc-gKHVrV.kFyvFM > span`);
+  let numbers = [];
+  console.log(`Events array was found: ${await events.length}`);
+  const eventsLength = await events.length;
+  for (let i = 0; i < eventsLength; i++) {
+    const numText = await events[i].getText();
+    numbers.push(numText);
+  }
+  let deliveredEvents = numbers[0];
+  let failedEvents = numbers[1];
+  console.log(`>>> delivery: ${deliveredEvents}, failed: ${failedEvents}`);
+});
