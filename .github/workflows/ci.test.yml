@@ -1,1 +1,25 @@
+name: Rudderstack-E2E-CI
+on:
+  push: branches:[ main ]
+  pull_request: branches:[ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env: STANDARD_USER = ${{secrets.STANDARD_USER}}
+      STANDARD_PASSWORD = ${{secrets.STANDARD_PASSWORD}}
+      RUDDERSTACK_LOGIN_URL = ${{secrets.RUDDERSTACK_LOGIN_URL}}
+    steps:
+      - name: Install Chromium
+        run: sudo apt-get install chromium-browser
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+            node-version: 20.16
+      - name: install dependencies
+        run: npm install
+      - name: Running e2e tests
+        run: npx wdio wdio.conf.ts
 
