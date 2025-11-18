@@ -9,9 +9,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env: STANDARD_USER = ${{secrets.STANDARD_USER}}
-      STANDARD_PASSWORD = ${{secrets.STANDARD_PASSWORD}}
-      RUDDERSTACK_LOGIN_URL = ${{secrets.RUDDERSTACK_LOGIN_URL}}
+    env:
+      STANDARD_USER: ${{secrets.STANDARD_USER}}
+      STANDARD_PASSWORD: ${{secrets.STANDARD_PASSWORD}}
+      RUDDERSTACK_LOGIN_URL: ${{secrets.RUDDERSTACK_LOGIN_URL}}
     steps:
       - name: Install Chromium
         run: sudo apt-get install chromium-browser
