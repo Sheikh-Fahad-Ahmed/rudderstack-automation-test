@@ -1,7 +1,6 @@
 import {
   Given,
   When,
-  IWorldOptions,
   Then,
   World,
   setWorldConstructor,
@@ -12,9 +11,6 @@ import apiHelpers from "../../helpers/apiHelpers.ts";
 class CredentialsWorld extends World {
   dataPlaneURL?: string;
   writeKey?: string;
-  // constructor(options: IWorldOptions) {
-  //   super(options);
-  // }
 }
 setWorldConstructor(CredentialsWorld);
 
@@ -30,11 +26,13 @@ Given(/^Login to rudderstack web app$/, async function () {
 });
 
 When(/^Logged in skip two factor authentication$/, async function () {
+  // Skip 2-Factor Authentication
   const link = await $(`=I'll do this later`);
   await link.waitForExist({ timeout: 10000 });
   await link.click();
   console.log(`>>> ${link} was clicked`);
 
+  // Another skip
   await browser.pause(1000);
   const btn = await $(`button=Go to dashboard`);
   await btn.waitForExist({ timeout: 10000 });
@@ -43,10 +41,12 @@ When(/^Logged in skip two factor authentication$/, async function () {
 });
 
 Then(/^Get and store data plane URL$/, async function (this: CredentialsWorld) {
+  // Close help pop-up
   await browser.pause(3000);
   const popUpBtn = await $(`button[data-action=close]`);
   await popUpBtn.click();
 
+  //Fetch data plane URL
   await browser.pause(3000);
   this.dataPlaneURL = await $(
     `//*[@id="top-layout"]/div[2]/div/div/div/div[1]/div/div/div/div/span`
@@ -58,8 +58,9 @@ Then(/^Get and store data plane URL$/, async function (this: CredentialsWorld) {
 Then(
   /^Store write key of HTTP source for api call$/,
   async function (this: CredentialsWorld) {
+    //Fetch Write Key
     await browser.pause(1000);
-    let writeKeyText = await $(
+    let writeKeyText: string = await $(
       `(//span[@class="sc-kDnyiN kWZpvc text-ellipsis"])[2]`
     ).getText();
     console.log(`>>> write Key Text: ${writeKeyText}`);
@@ -71,6 +72,7 @@ Then(
 Then(
   /^Use write key and data plane url to call api$/,
   async function (this: CredentialsWorld) {
+    // Construct parameters for api call
     const baseURL: string = this.dataPlaneURL;
     const endPoint: string = "/v1/track";
     const authHeader: string =
@@ -83,6 +85,8 @@ Then(
     console.log(
       `>>>>> Data plane url: ${baseURL} , write key: ${this.writeKey}, Auth header: ${authHeader}`
     );
+
+    // Call POST method
     try {
       const response = await apiHelpers.POST(
         baseURL,
@@ -101,24 +105,28 @@ Then(
 Then(
   /^Move to events tab in destination (.*)$/,
   async function (destination: string) {
+    // Click Destinations link on the side bar
     await $(`span=Destinations`).click();
     const value = await $(`.sc-ksJhlw.sc-fTkLMS.fxuygx.gHHISb`);
     let valueText: string = await value.getText();
     console.log(`>>> valueText: ${valueText}, value: ${value}`);
 
+    // Validate if the destination passed is equal
     if (valueText === destination) {
       await value.click();
     } else {
       throw new Error(`Destination: ${destination} is not valid`);
     }
 
+    // In Destination page get all the tabs
     await browser.pause(2000);
     let eventsTabs = await $$(`.ant-tabs-tab-btn`);
     let eventsTabsLength: number = await eventsTabs.length;
     let flag: boolean = false;
 
+    // Find Events tab and click on it
     for (let i = 0; i < eventsTabsLength; i++) {
-      let tabText = await eventsTabs[i].getText();
+      let tabText: string = await eventsTabs[i].getText();
       if (tabText === "Events") {
         eventsTabs[i].click();
         flag = true;
@@ -134,19 +142,22 @@ Then(
 );
 
 Then(/^Read the events data$/, async function () {
+  // Fetch the two counts: Delivered & Failed
   await browser.pause(2000);
   let events = await $$(`h2.sc-gKHVrV.kFyvFM > span`);
-  let numbers = [];
+  let numbers: string[] = [];
   console.log(`Events array was found: ${await events.length}`);
   const eventsLength = await events.length;
   for (let i = 0; i < eventsLength; i++) {
     const numText = await events[i].getText();
     numbers.push(numText);
   }
-  let deliveredEvents = numbers[0];
-  let failedEvents = numbers[1];
+
+  let deliveredEvents: string = numbers[0];
+  let failedEvents: string = numbers[1];
   console.log(`>>> delivery: ${deliveredEvents}, failed: ${failedEvents}`);
 
+  // Assert the two counts
   chai.expect(parseInt(deliveredEvents)).to.greaterThanOrEqual(0);
   chai.expect(parseInt(failedEvents)).to.greaterThanOrEqual(0);
 });
