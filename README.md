@@ -39,7 +39,7 @@ on the dashboard.
 
    ```bash
    git clone https://github.com/Sheikh-Fahad-Ahmed/rudderstack-automation-test.git
-   cd rudderstack-e2e-tests
+   cd rudderstack-automation-test
    ```
 
 2. **Install dependencies**:
