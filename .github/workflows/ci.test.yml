@@ -9,19 +9,34 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     env:
-      STANDARD_USER: ${{secrets.STANDARD_USER}}
-      STANDARD_PASSWORD: ${{secrets.STANDARD_PASSWORD}}
-      RUDDERSTACK_LOGIN_URL: ${{secrets.RUDDERSTACK_LOGIN_URL}}
+      STANDARD_USER: ${{ secrets.STANDARD_USER }}
+      STANDARD_PASSWORD: ${{ secrets.STANDARD_PASSWORD }}
+      RUDDERSTACK_LOGIN_URL: ${{ secrets.RUDDERSTACK_LOGIN_URL }}
+
     steps:
-      - name: Install Chromium
-        run: sudo apt-get install chromium-browser
-      - uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v1
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: 20.16
-      - name: install dependencies
+
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
         run: npm install
-      - name: Running e2e tests
+
+      - name: Install Chromium
+        uses: browser-actions/setup-chromium@v1
+
+      - name: Run E2E tests
         run: npx wdio wdio.conf.ts
